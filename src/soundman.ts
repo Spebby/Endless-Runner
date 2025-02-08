@@ -1,3 +1,5 @@
+import { gConst } from "./global";
+
 export class Sound {
     private id: string;
     path: string;
@@ -21,14 +23,14 @@ export enum LoadMode {
     LAZY
 }
 
-// probably makes more sense to simply make this a scene
+// probably makes more sense to simply make SoundMan a scene
 export class SoundMan {
     // Dictionary where each key corresponds to an array of Sounds
     private static sounds: { [key: string] : Sound[] } = {};
     private static scene : Phaser.Scene;
 
     static init(scene : Phaser.Scene) {
-        this.scene = scene;
+        SoundMan.scene = scene;
     }
 
     private static warning() : Boolean {
@@ -47,9 +49,9 @@ export class SoundMan {
         sound        = Sound.createInstance();
         sound.path   = path;
         sound.weight = weight;
-        this.scene.load.audio(sound.getID(), `${assetPath}/${sound.path}`);
-        this.scene.load.start();
-        this.scene.load.once('complete', () => {
+        SoundMan.scene.load.audio(sound.getID(), `${gConst.assetPath}/${sound.path}`);
+        SoundMan.scene.load.start();
+        SoundMan.scene.load.once('complete', () => {
             if (!SoundMan.sounds[key]) SoundMan.sounds[key] = [];
             SoundMan.sounds[key].push(sound);
         });
@@ -61,7 +63,7 @@ export class SoundMan {
     static importJSON(path : string) : void {
         if (SoundMan.warning()) return;
         const jsonCache = crypto.randomUUID();
-        SoundMan.scene.load.json(jsonCache, `${assetPath}/${path}`);
+        SoundMan.scene.load.json(jsonCache, `${gConst.assetPath}/${path}`);
         SoundMan.scene.load.once('complete', () => {
             var data = SoundMan.scene.cache.json.get(jsonCache);
             console.log(data);
@@ -76,7 +78,8 @@ export class SoundMan {
                     let s    = Sound.createInstance();
                     s.path   = sound.path;
                     s.weight = sound.weight;
-                    SoundMan.scene.load.audio(s.getID(), `${assetPath}/${s.path}`);
+                    SoundMan.scene.load.audio(s.getID(), `${gConst.assetPath}/${s.path}`);
+                    if (!SoundMan.sounds[key]) SoundMan.sounds[key] = [];
                     SoundMan.sounds[key].push(s);
                 });
             }
