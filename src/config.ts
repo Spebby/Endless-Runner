@@ -8,17 +8,15 @@ export const GameConfig : Phaser.Types.Core.GameConfig = {
     backgroundColor: 0x3a404d,
     type: Phaser.AUTO,
     scale: {
-        mode: Phaser.Scale.MAX_ZOOM,
+        mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
         parent: 'game',
-        width:  750,
-        height: 750
+        width:  1000,
+        height: 700
     },
     physics: {
-        default: 'matter',
-        matter: {
-            enabled: true,
-            debug: true,
+        default: 'arcade',
+        arcade: {
             gravity: { x: 0, y: 100 }
         }
     },

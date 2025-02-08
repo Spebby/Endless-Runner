@@ -1,26 +1,21 @@
 import { GameConfig, UIConfig } from "../config";
 import { KeyMap } from "../keymap";
-import { gVars, gConst } from "../global";
+import { gVar, gConst } from "../global";
 import { SoundMan } from "../soundman";
 
 export class MenuScene extends Phaser.Scene {
+    private hsText : Phaser.GameObjects.Text;
+
     constructor() {
         super({ key: 'MenuScene' });
     }
 
     preload() : void {
-        //this.load.image('rocket', `${assetPath}/rocket.png`);
-        
-        // load spritesheet
-        //this.load.spritesheet('explosion', `${assetPath}/explosion.png`, {
-        //    frameWidth: 32,
-        //    frameHeight: 32,
-        //    startFrame: 0,
-        //    endFrame: 9
-        //});
+        this.load.image('player', `${gConst.assetPath}/player.png`);
 
-        SoundMan.add('select', 'sfx-select');
-        SoundMan.add('shot', 'sfx-shot');
+        SoundMan.init(this);
+        SoundMan.add('select', 'sfx-select.wav');
+        SoundMan.add('shot', 'sfx-shot.wav1');
         SoundMan.importJSON('soundData.json');
     }
 
@@ -31,7 +26,7 @@ export class MenuScene extends Phaser.Scene {
         for (const cookie of document.cookie.split("; ")) {
             const [key, value] = cookie.split("=");
             if (key === "highscore") {
-                gVars.highScore = parseInt(decodeURIComponent(value));
+                gVar.highScore = parseInt(decodeURIComponent(value));
                 break;
             }
         }
@@ -47,12 +42,20 @@ export class MenuScene extends Phaser.Scene {
             frameRate: 30
         });*/
 
-        // setup UI.
+        gVar.highScore = 100;
 
+        KeyMap.keyRESET.on('down', (event : KeyboardEvent) => {
+            if (event.shiftKey) this.resetHighscore();
+        });
+        KeyMap.keySELECT.onDown = () => {
+            this.changeScene();
+        };
+
+        // setup UI.
         let menuConfig = {
-            fontFamily: 'Courier',
-            fontSize: '28px',
-            backgroundColor: '#F3B141',
+            fontFamily: 'Chillen',
+            fontSize: '32px',
+            //backgroundColor: '#F3B141',
             color: '#843605',
             align: 'right',
             padding: {
@@ -63,12 +66,25 @@ export class MenuScene extends Phaser.Scene {
         };
 
         let hHeight = parseInt(GameConfig.scale.height as string) / 2;
-        let hWidth  = parseInt(GameConfig.scale.width  as string) / 2; 
+        let hWidth  = parseInt(GameConfig.scale.width  as string) / 2;
 
         // display menu text
-        menuConfig.backgroundColor = '#00FF00';
-        menuConfig.color = '#000';
-        this.add.text(hWidth, hHeight + 2 * (UIConfig.borderUISize + UIConfig.borderPadding), `High Score: ${gVars.highScore}`, menuConfig).setOrigin(0.5);
+        // menuConfig.backgroundColor = '#00FF00';
+        menuConfig.color = '#FFFFFF';
+        this.add.text(hWidth, hHeight * 0.5, `Wingman`, menuConfig).setOrigin(0.5).setFontSize('128px');
+        this.add.text(hWidth, (hHeight * 0.9) + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `-PRESS SELECT-`, menuConfig).setOrigin(0.5);
+        this.hsText = this.add.text(hWidth, hHeight + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `High Score: ${gVar.highScore}`, menuConfig).setOrigin(0.5).setFontSize('24px');
     }
 
+    changeScene() : void {
+        SoundMan.play('select');
+        this.scene.start('PlayScene');
+    }
+
+    resetHighscore() : void {
+        SoundMan.playUnweight('explosions');
+        document.cookie = `highscore=0; expires=Fri, 1, Jan 1, 23:59:59 GMT; path=/`;
+        gVar.highScore  = 0;
+        this.hsText.text = `High Score: ${gVar.highScore}`;
+    }
 }
