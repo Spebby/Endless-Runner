@@ -42,38 +42,26 @@ export class MenuScene extends Phaser.Scene {
             frameRate: 30
         });*/
 
-        gVar.highScore = 100;
-
         KeyMap.keyRESET.on('down', (event : KeyboardEvent) => {
-            if (event.shiftKey) this.resetHighscore();
+            if (event.shiftKey && 0 < gVar.highScore) this.resetHighscore();
         });
         KeyMap.keySELECT.onDown = () => {
             this.changeScene();
-        };
+        }
 
         // setup UI.
-        let menuConfig = {
-            fontFamily: 'Chillen',
-            fontSize: '32px',
-            //backgroundColor: '#F3B141',
-            color: '#843605',
-            align: 'right',
-            padding: {
-                top: 5,
-                bottom: 5,
-            },
-            fixedWidth: 0
-        };
+        
 
         let hHeight = parseInt(GameConfig.scale.height as string) / 2;
         let hWidth  = parseInt(GameConfig.scale.width  as string) / 2;
 
         // display menu text
         // menuConfig.backgroundColor = '#00FF00';
-        menuConfig.color = '#FFFFFF';
-        this.add.text(hWidth, hHeight * 0.5, `Wingman`, menuConfig).setOrigin(0.5).setFontSize('128px');
-        this.add.text(hWidth, (hHeight * 0.9) + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `-PRESS SELECT-`, menuConfig).setOrigin(0.5);
-        this.hsText = this.add.text(hWidth, hHeight + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `High Score: ${gVar.highScore}`, menuConfig).setOrigin(0.5).setFontSize('24px');
+        this.add.text(hWidth, hHeight * 0.5, `Wingman`, gConst.menuConfig).setOrigin(0.5).setFontSize('128px');
+        this.add.text(hWidth, (hHeight * 0.9) + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `-PRESS SELECT-`, gConst.menuConfig).setOrigin(0.5);
+        if (0 < gVar.highScore) {
+            this.hsText = this.add.text(hWidth, hHeight + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `High Score: ${gVar.highScore}`, gConst.menuConfig).setOrigin(0.5).setFontSize('24px');
+        }
     }
 
     changeScene() : void {
@@ -85,6 +73,6 @@ export class MenuScene extends Phaser.Scene {
         SoundMan.playUnweight('explosions');
         document.cookie = `highscore=0; expires=Fri, 1, Jan 1, 23:59:59 GMT; path=/`;
         gVar.highScore  = 0;
-        this.hsText.text = `High Score: ${gVar.highScore}`;
+        this.hsText.text = ``;
     }
 }

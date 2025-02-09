@@ -66,7 +66,7 @@ export class SoundMan {
         SoundMan.scene.load.json(jsonCache, `${gConst.assetPath}/${path}`);
         SoundMan.scene.load.once('complete', () => {
             var data = SoundMan.scene.cache.json.get(jsonCache);
-            console.log(data);
+            //console.log(data);
             for (const key in data) {
                 if (!Array.isArray(data[key])) {
                     console.error(`{key} is non-list in ${path}!`);

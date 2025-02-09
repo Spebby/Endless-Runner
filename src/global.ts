@@ -13,4 +13,16 @@ export let gVar = {
 
 export let gConst = {
     assetPath : process.env.NODE_ENV === 'production' ? './assets/' : '../assets',
+    menuConfig : {
+        fontFamily: 'Chillen',
+        fontSize: '32px',
+        //backgroundColor: '#F3B141',
+        color: '#FFFFFF',
+        align: 'right',
+        padding: {
+            top: 5,
+            bottom: 5,
+        },
+        fixedWidth: 0
+    }
 } as const;
