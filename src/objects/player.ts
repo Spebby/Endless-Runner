@@ -9,7 +9,7 @@ const { sin, cos, tan, asin, acos, atan, PI } = Math;
 export class Player extends Physics.Arcade.Sprite {
     // body is reserved by Sprite
     private drag : number = 0.99;
-    private terminalVelocity : number = 100;
+    private terminalVelocity : number = 400;
     private glideSpeed = 0.1;
 
     constructor(scene : Phaser.Scene, x : number, y : number, texture : string) {
@@ -72,7 +72,7 @@ export class Player extends Physics.Arcade.Sprite {
         let dot  : number = vel.normalize().dot(dir);
 
         let nDir = dir.scale(mag + (speedUp * 4));
-        this.setVelocity(nDir.x, nDir.y + (100 * delta));
+        this.setVelocity(nDir.x, nDir.y);
         console.log(`SpeedUp: ${Math.round(speedUp * 1000)/1000}  dot: ${Math.round(dot*1000)/1000}   mag ${Math.round(mag*1000)/1000}   nDir: <${Math.round(nDir.x*1000)/1000}, ${Math.round(nDir.y*1000)/1000}>`);
     }
 }
