@@ -11,7 +11,22 @@ export class MenuScene extends Phaser.Scene {
     }
 
     preload() : void {
-        this.load.image('player', `${gConst.assetPath}/player.png`);
+        this.load.path = gConst.assetPath;
+        this.load.spritesheet('player', 'player.png', {
+            frameWidth:  512,
+            frameHeight: 512,
+        });
+        this.load.spritesheet('bird', 'bird.png', {
+            frameWidth:  512,
+            frameHeight: 512,
+        });
+
+        this.load.image('bgTop',    'backgrounds/bgTop.png');
+        this.load.image('bgBottom', 'backgrounds/bgBottom.png');
+
+        this.load.image('treesF', 'backgrounds/treesF.png');
+        this.load.image('treesM', 'backgrounds/treesM.png');
+        this.load.image('treesB', 'backgrounds/treesB.png');
 
         SoundMan.init(this);
         SoundMan.add('select', 'sfx-select.wav');
@@ -21,6 +36,21 @@ export class MenuScene extends Phaser.Scene {
 
     create() : void {
         KeyMap.initialize(this);
+
+        this.anims.create({
+            key: 'p-idle',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: true,
+            frames: this.anims.generateFrameNumbers('player', { start: 0, end: 4 }),
+        });
+        this.anims.create({
+            key: 'b-idle',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: true,
+            frames: this.anims.generateFrameNumbers('bird', { start: 0, end: 5 }),
+        });
 
         // get highscore cookie
         for (const cookie of document.cookie.split("; ")) {
@@ -57,7 +87,7 @@ export class MenuScene extends Phaser.Scene {
 
         // display menu text
         // menuConfig.backgroundColor = '#00FF00';
-        this.add.text(hWidth, hHeight * 0.5, `Wingman`, gConst.menuConfig).setOrigin(0.5).setFontSize('128px');
+        this.add.text(hWidth, hHeight * 0.5, `Fly-By`, gConst.menuConfig).setOrigin(0.5).setFontSize('128px');
         this.add.text(hWidth, (hHeight * 0.9) + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `-PRESS SELECT-`, gConst.menuConfig).setOrigin(0.5);
         if (0 < gVar.highScore) {
             this.hsText = this.add.text(hWidth, hHeight + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `High Score: ${gVar.highScore}`, gConst.menuConfig).setOrigin(0.5).setFontSize('24px');

@@ -12,7 +12,7 @@ export let gVar = {
 }
 
 export let gConst = {
-    assetPath : process.env.NODE_ENV === 'production' ? './assets/' : '../assets',
+    assetPath : process.env.NODE_ENV === 'production' ? './assets/' : '../assets/',
     menuConfig : {
         fontFamily: 'Chillen',
         fontSize: '32px',
