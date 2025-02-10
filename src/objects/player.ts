@@ -2,30 +2,32 @@ import { GameObjects, Physics } from 'phaser';
 import { Math as pMath } from 'phaser';
 import {KeyMap} from '../keymap';
 import {SoundMan} from '../soundman';
-import {gVar} from '../global';
+//import {gVar} from '../global';
 
 const { sin, cos, tan, asin, acos, atan, PI } = Math;
 
 export class Player extends Physics.Arcade.Sprite {
     // body is reserved by Sprite
-    private drag : number = 0.9;
-    private terminalVelocity : number = 400;
-    private glideSpeed = 0.1;
+    private drag : number = 0.999;
+    private terminalVelocity : number = 500;
+    private glideSpeed = 30;
+    private initX;
 
     constructor(scene : Phaser.Scene, x : number, y : number, texture : string) {
         super(scene, x, y, texture, 0);
-        console.log(x, y);
+        this.initX = x;
 
-        this.setOrigin(0.5, 0.5);
+
+        this.setScale(0.125);
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-
-        this.body.setSize(this.width, this.height);
-        //this.setDamping(true);
-        this.setDrag(this.drag);
+        this.body.setCircle(128);
+        this.setOffset(128,128);
+        this.setMass(1);
         this.setMaxVelocity(this.terminalVelocity);
         this.setVelocityX(100);
+        this.setDrag(0.9);
     }
 
     /** 
@@ -34,28 +36,40 @@ export class Player extends Physics.Arcade.Sprite {
     * @ref https://docs.phaser.io/api-documentation/event/scenes-events#update
     */
     update(time : number, delta : number) : void {
+        // Consider if I want any keyboard input
         /*if (KeyMap.keyLEFT.isDown || KeyMap.keyUP.isDown) {
             this.rotation -= 0.05;
         } else if (KeyMap.keyRIGHT.isDown || KeyMap.keyDOWN.isDown) {
             this.rotation += 0.05;
         }*/
-        // Clamp rotation [-π/2 ... π/2]
         var pos : pMath.Vector2 = new pMath.Vector2(this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY).subtract(this.body.position);
-        //console.log(`rPos: <${Math.round(rawPos.x * 100) / 100}, ${Math.round(rawPos.y * 100) / 100}>  Pos: <${Math.round(pos.x * 100) / 100}, ${Math.round(pos.y * 100) / 100}>`);
-        pos = pos.normalize();
+        pos.normalize();
+        // make pos 20% of the difference between velocity and new mouse pos.
+        let velNorm = this.body.velocity.clone().normalize();
+        pos.lerp(velNorm, 0.8);
         //pos.x = pMath.Clamp(pos.x, 0, 1);
-        //console.log(`<${pos.x}, ${pos.y}>`);
+        //pos.x = Math.abs(pos.x);
+        // I'm debating if I even want to do this ^
+        // argument for negating C if negative or flattening negative.
 
+        // Clamp rotation [-π/2 ... π/2]
         let pitch : number = pMath.Clamp(asin(pos.y), -PI * 0.5, PI * 0.5);
         this.rotation = pitch;
+        //console.log(pitch);
 
 
         this.glide(delta, pitch, pos);
 
-        // temp wrap around for testing
+        // Lock player's horizontal movement (but maintains velocity)
+        this.x = this.initX;
+
+        /* temp wrap around for testing
         if(1000 < this.x) {
-            this.x = 0;
+            this.x = 1;
+        } else if (this.x < 0) {
+            this.x = 999;
         }
+        */
         if (-20 < this.y) {
             this.y = -400;
         }
@@ -67,13 +81,59 @@ export class Player extends Physics.Arcade.Sprite {
         // should be greater than gravity to move you up if pi/2 > pitch > 0 and move you down.
         // looking down all the way would be all of gravity taking you down and based on the angle you
         // slowly add to gravity until it's positive
-        let speedUp : number = (2 * pitch)/PI;
-        let mag  : number = vel.length();
-        let dot  : number = vel.normalize().dot(dir);
-        let smoothDir : pMath.Vector2 = vel.normalize().lerp(dir, 0.2);
 
-        let nDir = smoothDir.scale(mag + (speedUp * 4));
-        this.setVelocity(nDir.x, nDir.y);
-        console.log(`SpeedUp: ${Math.round(speedUp * 1000)/1000}  dot: ${Math.round(dot*1000)/1000}   mag ${Math.round(mag*1000)/1000}   nDir: <${Math.round(nDir.x*1000)/1000}, ${Math.round(nDir.y*1000)/1000}>`);
+        // NOTE: remember that Phaser inverts Y axis
+        // Which means pitch is inverted too!
+        
+        let speed = vel.length();
+        let dot   = vel.dot(dir) / speed;
+
+        // NOTE: We'd normally negate this, but Phaser makes
+        // Y-up positive. So it's already correct.
+        let clampedPitch = (2 * pitch)/PI;
+        let speedUp = 0 < pitch ? 2 * clampedPitch : 0;
+        // I want actual speedup while looking down, and no speedup while looking up,
+        // so gravity & drag can take over.
+
+        // TODO: consider adding actual drag based on
+        // equation from glide2 (really v5)
+
+        let deltaVel = dir.scale(speed + (speedUp * this.drag));
+        deltaVel.subtract(this.body.velocity);
+        //console.log(clampedPitch, speedUp, vel, targetVel, deltaVel);
+        this.body.velocity.x += deltaVel.x;
+        this.body.velocity.y += deltaVel.y + this.scene.physics.world.gravity.y * delta / 1000;
+        //console.log(`SpeedUp: ${Math.round(speedUp * 1000)/1000}  dot: ${Math.round(dot*1000)/1000}   speed ${Math.round(mag*1000)/1000}   targetVel: <${Math.round(nDir.x*1000)/1000}, ${Math.round(nDir.y*1000)/1000}>`);
+    }
+
+    // this is more accurate but harder to work with.
+    private glide2(delta : number, pitch : number, dir : pMath.Vector2) : void {
+        // relative angle between glyder and dir of motion
+        // split into component that's orth to glyder, and parallel (shadow).
+        // parallel to glyder orthProjV, we recieve least drag. Orth to glyder, most drag.
+        //
+        // two drag coefficients, headwind & something akin to lift
+        // per star: k is fuck around and find out
+        //
+        // our coefficient would be 0.09 (streamlined half-body)
+        
+        let force : pMath.Vector2 = new pMath.Vector2(0,0);
+        let k = 0.19;
+        force.add(dir.clone().scale(this.glideSpeed));
+        // force += dir * C;
+        force.y += this.scene.physics.world.gravity.y;
+        // force += <0, gravity>
+        let orthNormDir : pMath.Vector2  = dir.clone().normalize().rotate(pMath.DegToRad(90));
+        // orthDir = dir.orth;
+        let velProjONDir : pMath.Vector2 = orthNormDir.clone().project(this.body.velocity);
+        // velProjOrthDir = orthDir.normal * (orthDir.normal * this.body.velocity)
+        force.add(orthNormDir.clone().scale(-k * velProjONDir.lengthSq()));
+        // force += -k * orthDir.normal * |velProjOrthDir| ^ 2;
+        // Fd = -(vNorm)k|v|^2, --- k varies based on pitch
+
+        this.body.velocity.x += force.x * delta / 1000;
+        this.body.velocity.y += force.y * delta / 1000;
+        
+        // from here creative liberty
     }
 }
