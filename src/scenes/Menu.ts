@@ -12,6 +12,24 @@ export class MenuScene extends Phaser.Scene {
 
     preload() : void {
         this.load.path = gConst.assetPath;
+
+        // Menu Assets
+        this.load.image('title', 'title/title.png');
+        this.load.image('titleBg', 'title/titleBg.png');
+        this.load.spritesheet('startText', 'title/start.png', {
+            frameWidth:  512,
+            frameHeight: 128,
+        });
+        this.load.image('cog', 'title/cog.png');
+
+        // Game Assets
+        this.load.image('bgTop',    'backgrounds/bgTop.png');
+        this.load.image('bgBottom', 'backgrounds/bgBottom.png');
+        this.load.image('mountain', 'backgrounds/mountain.png');
+
+        this.load.image('treesF', 'backgrounds/treesF.png');
+        this.load.image('treesM', 'backgrounds/treesM.png');
+        this.load.image('treesB', 'backgrounds/treesB.png');
         this.load.spritesheet('player', 'player.png', {
             frameWidth:  512,
             frameHeight: 512,
@@ -20,13 +38,19 @@ export class MenuScene extends Phaser.Scene {
             frameWidth:  512,
             frameHeight: 512,
         });
+        this.load.spritesheet('balloon', 'balloon.png', {
+            frameWidth:  512,
+            frameHeight: 512,
+        });
+        this.load.spritesheet('coin', 'coin.png', {
+            frameWidth:  512,
+            frameHeight: 512,
+        });
+        this.load.spritesheet('clouds', 'clouds.png', {
+            frameWidth:  512,
+            frameHeight: 512,
+        });
 
-        this.load.image('bgTop',    'backgrounds/bgTop.png');
-        this.load.image('bgBottom', 'backgrounds/bgBottom.png');
-
-        this.load.image('treesF', 'backgrounds/treesF.png');
-        this.load.image('treesM', 'backgrounds/treesM.png');
-        this.load.image('treesB', 'backgrounds/treesB.png');
 
         SoundMan.init(this);
         SoundMan.add('select', 'sfx-select.wav');
@@ -37,6 +61,17 @@ export class MenuScene extends Phaser.Scene {
     create() : void {
         KeyMap.initialize(this);
 
+        // Title Anims
+        this.anims.create({
+            key: 'startText',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: false,
+            frames: this.anims.generateFrameNumbers('startText', { start: 0, end: 3 }),
+        });
+
+
+        // Object Anims
         this.anims.create({
             key: 'p-idle',
             frameRate: 4,
@@ -51,6 +86,37 @@ export class MenuScene extends Phaser.Scene {
             yoyo: true,
             frames: this.anims.generateFrameNumbers('bird', { start: 0, end: 5 }),
         });
+        this.anims.create({
+            key: 'coin',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: true,
+            frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 6 }),
+        });
+        this.anims.create({
+            key: 'balloon',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: true,
+            frames: this.anims.generateFrameNumbers('balloon', { start: 0, end: 6 }),
+        });
+
+        // Background Anims
+        this.anims.create({
+            key: 'cloud0',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: true,
+            frames: this.anims.generateFrameNumbers('clouds', { start: 0, end: 2 }),
+        });
+        this.anims.create({
+            key: 'cloud1',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: true,
+            frames: this.anims.generateFrameNumbers('clouds', { start: 3, end: 5 }),
+        });
+
 
         // get highscore cookie
         for (const cookie of document.cookie.split("; ")) {
@@ -61,17 +127,6 @@ export class MenuScene extends Phaser.Scene {
             }
         }
 
-        // animation configuration
-        /*this.anims.create({
-            key: 'explode',
-            frames: this.anims.generateFrameNumbers('explosion', {
-                start: 0,
-                end: 9,
-                first: 0
-            }),
-            frameRate: 30
-        });*/
-
         KeyMap.keyRESET.on('down', (event : KeyboardEvent) => {
             if (event.shiftKey && 0 < gVar.highScore) this.resetHighscore();
         });
@@ -79,9 +134,7 @@ export class MenuScene extends Phaser.Scene {
             this.changeScene();
         }
 
-        // setup UI.
-        
-
+        // setup UI. 
         let hHeight = parseInt(GameConfig.scale.height as string) / 2;
         let hWidth  = parseInt(GameConfig.scale.width  as string) / 2;
 
