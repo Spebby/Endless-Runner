@@ -1,5 +1,3 @@
-import { gConst } from "./global";
-
 export class Sound {
     private id: string;
     path: string;
@@ -49,7 +47,7 @@ export class SoundMan {
         sound        = Sound.createInstance();
         sound.path   = path;
         sound.weight = weight;
-        SoundMan.scene.load.audio(sound.getID(), `${gConst.assetPath}/${sound.path}`);
+        SoundMan.scene.load.audio(sound.getID(), `${sound.path}`);
         SoundMan.scene.load.start();
         SoundMan.scene.load.once('complete', () => {
             if (!SoundMan.sounds[key]) SoundMan.sounds[key] = [];
@@ -63,7 +61,7 @@ export class SoundMan {
     static importJSON(path : string) : void {
         if (SoundMan.warning()) return;
         const jsonCache = crypto.randomUUID();
-        SoundMan.scene.load.json(jsonCache, `${gConst.assetPath}/${path}`);
+        SoundMan.scene.load.json(jsonCache, `${path}`);
         SoundMan.scene.load.once('complete', () => {
             var data = SoundMan.scene.cache.json.get(jsonCache);
             //console.log(data);
@@ -78,7 +76,7 @@ export class SoundMan {
                     let s    = Sound.createInstance();
                     s.path   = sound.path;
                     s.weight = sound.weight;
-                    SoundMan.scene.load.audio(s.getID(), `${gConst.assetPath}/${s.path}`);
+                    SoundMan.scene.load.audio(s.getID(), `${s.path}`);
                     if (!SoundMan.sounds[key]) SoundMan.sounds[key] = [];
                     SoundMan.sounds[key].push(s);
                 });
