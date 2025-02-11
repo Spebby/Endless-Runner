@@ -66,7 +66,7 @@ export class UIScene extends Phaser.Scene {
                       + 'Collect coins for extra score, and balloons for a boost in height.\n\n'
                       + 'Press the Escape key to pause and unpause the game,\n'
                       + 'as well as exiting this popup.\n'
-                      + 'Press Shift + R while paused to reset the game! Your score will be saved.';
+                      + 'Press R while paused to reset the game! Your score will be saved.';
 
             let cancel = this.add.sprite(0, 0, 'cancel')
                 .setInteractive().on('pointerdown', () => {
@@ -105,10 +105,13 @@ export class UIScene extends Phaser.Scene {
         let gameOverBg = this.add.rectangle(0, 0, 2 * hWidth, 2 * hHeight, 0xce4c4c, 0.5)
             .setOrigin(0.5);
         this.gameOverText = this.add.text(0, 0, 'Game Over!', gConst.uiPopup)
+            .setOrigin(0.5)
+            .setFontSize('96px');
+        let prompt = this.add.text(0, hHeight - UIConfig.borderPadding - 32, 'Press R to Restart', gConst.uiPopup)
             .setOrigin(0.5);
         this.gameOver = this.add.container(hWidth, hHeight)
             .setScale(0);
-        this.gameOver.add([gameOverBg, this.gameOverText]);
+        this.gameOver.add([gameOverBg, this.gameOverText, prompt]);
     }
 
     update(delta : number, time : number) {
@@ -127,12 +130,12 @@ export class UIScene extends Phaser.Scene {
         this.speedometer.text = '';
         this.scoreText.text = '';
         
-        let scoreText = this.add.text(0, this.gameOverText.y + 48, '', gConst.uiPopup)
+        let scoreText = this.add.text(0, this.gameOverText.y + 64, '', gConst.uiPopup)
             .setOrigin(0.5);
         if (gVar.highScore == this.PlayScene.getScore()) {
-            scoreText.text = `New Highscore: ${gVar.highScore}!`;
+            scoreText.text = `New Highscore: ${Math.floor(gVar.highScore)}!`;
         } else {
-            scoreText.text = `Final Score: ${gVar.highScore}`;
+            scoreText.text = `Final Score: ${Math.floor(gVar.highScore)}`;
         }
 
         this.gameOver.add(scoreText);

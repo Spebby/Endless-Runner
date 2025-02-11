@@ -110,7 +110,7 @@ export class PlayScene extends Phaser.Scene {
         });
 
         KeyMap.keyRESET.on('down', (event : KeyboardEvent) => {
-            if (event.shiftKey && this.paused) {
+            if (this.paused) {
                 this.reset();
             }
         });
@@ -134,14 +134,14 @@ export class PlayScene extends Phaser.Scene {
         if (this.enemyTimer < 0) {
             // spawn wave
             // TODO: make the cap of enemies ramp up over time.
-            let enemyNumber = pMath.Between(1, 3);
+            let enemyNumber = pMath.Between(2, 5);
             let yTarg = this.player.y;
             let pickedPos : number[] = [];
             for (let i = 0; i < enemyNumber; i++) {
                 let pos : number;
                 while (true) {
                     let redo = false;
-                    pos = pMath.Between((hHeight * 1.5) + yTarg, yTarg - (hHeight * 1.5));
+                    pos = pMath.Between((hHeight/2) + yTarg, yTarg - (hHeight/2));
                     pickedPos.some(num => {
                         if (Math.abs(pos - num) < 48) {
                             redo = true;
@@ -175,7 +175,7 @@ export class PlayScene extends Phaser.Scene {
 
             // TODO: pick good values for these.
             // extremely arbitrary but should be acceptable for the moment.
-            this.enemyTimer = pMath.Between(2, 5) * 50/(5 + (this.score * 0.1));
+            this.enemyTimer = pMath.Between(1, 3) * 50/(5 + (this.score * 0.1)) * 0.5;
             //this.enemyTimer = 1;
         }
 
@@ -280,8 +280,8 @@ export class PlayScene extends Phaser.Scene {
 
     gameOver() : void {
         if (this.score > gVar.highScore) {
-            gVar.highScore = this.score;
-            saveCookie('highScore', this.score);
+            gVar.highScore = Math.floor(this.score);
+            saveCookie('highScore', Math.floor(this.score));
         }
         this.paused = true;
         this.UIScene.setGameOver();

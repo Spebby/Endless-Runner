@@ -148,7 +148,7 @@ export class Player extends Physics.Arcade.Sprite {
 
     hitBalloon() : void {
         SoundMan.play('pop');
-        this.body.velocity.y += -100;
-        this.setMouseLock(1.5);
+        this.body.velocity.y += -400;
+        this.setMouseLock(0.5);
     }
 }

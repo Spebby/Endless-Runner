@@ -217,8 +217,6 @@ export class MenuScene extends Phaser.Scene {
             .setOrigin(0.5)
             .setInteractive();
 
-        let settingBg = this.add.rectangle(0, (1.5 * UIConfig.borderPadding) - hHeight * 0.65, hWidth * 2 - UIConfig.borderPadding * 2, hHeight * 0.75, 0x282c34, 0.25)
-            .setOrigin(0.5);
         let settingTitle = this.add.text(0, UIConfig.borderPadding + UIConfig.borderUISize - hHeight, 'Settings', gConst.settingsConfig)
             .setOrigin(0.5)
             .setFontSize('64px');
@@ -233,6 +231,8 @@ export class MenuScene extends Phaser.Scene {
                 toggleMusic.text = `Disable Music [${nChar}]`;
             });
 
+        let buttonBg = this.add.rectangle(0, 0, hWidth * 2 - UIConfig.borderPadding * 2, hHeight, 0x282c34, 0.25)
+            .setOrigin(0.5);
         let buttonText = this.add.text(0, 0, '', gConst.settingsConfig)
             .setOrigin(0.5);
         buttonText.text = 'Press Enter to start the Game\n'
@@ -274,7 +274,7 @@ export class MenuScene extends Phaser.Scene {
             });
         });
 
-        this.overlay.add([overlayBg, buttonText, settingBg, settingTitle, toggleMusic, credits, creditProg, cancel]);
+        this.overlay.add([overlayBg, buttonBg, buttonText, settingTitle, toggleMusic, credits, creditProg, cancel]);
     }
 
     changeScene() : void {
