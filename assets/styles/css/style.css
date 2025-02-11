@@ -9,3 +9,8 @@ body {
     font-family: 'Chillen';
     src: url('../../fonts/Chillen.ttf') format('truetype');
 }
+
+@font-face {
+    font-family: 'HapolePencil';
+    src: url('../../fonts/hapole_pencil.ttf') format('truetype');
+}
