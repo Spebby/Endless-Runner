@@ -26,6 +26,18 @@ export let gConst = {
         },
         fixedWidth: 0
     },
+    uiPopup : {
+        fontFamily: 'Chillen',
+        fontSize: '32px',
+        //backgroundColor: '#F3B141',
+        color: '#FFFFFF',
+        align: 'center',
+        padding: {
+            top: 5,
+            bottom: 5,
+        },
+        fixedWidth: 0
+    },
     titleConfig : {
         fontFamily: 'HapolePencil',
         fontSize: '32px',
@@ -43,7 +55,7 @@ export let gConst = {
         fontSize: '32px',
         //backgroundColor: '#F3B141',
         color: '#FFFFFF',
-        align: 'right',
+        align: 'center',
         padding: {
             top: 5,
             bottom: 5,

@@ -26,7 +26,10 @@ export class MenuScene extends Phaser.Scene {
             frameHeight: 128,
         });
         this.load.image('cog',   'title/cog.png');
-        this.load.image('close', 'title/cog.png');
+        this.load.spritesheet('close', 'title/x.png', {
+            frameWidth:  256,
+            frameHeight: 256,
+        });
 
         // Game Assets
         this.load.image('bgTop',    'backgrounds/bgTop.png');
@@ -76,7 +79,13 @@ export class MenuScene extends Phaser.Scene {
             yoyo: true,
             frames: this.anims.generateFrameNumbers('startText', { start: 0, end: 3 }),
         });
-
+        this.anims.create({
+            key: 'close',
+            frameRate: 4,
+            repeat: -1,
+            yoyo: true,
+            frames: this.anims.generateFrameNames('close', { start: 0, end: 2 })
+        })
 
         // Object Anims
         this.anims.create({
@@ -233,11 +242,11 @@ export class MenuScene extends Phaser.Scene {
             .setOrigin(0.5)
             .setFontSize('32px');
 
-
-        let cancel = this.add.image(0, 0, 'cancel')
+        let cancel = this.add.sprite(0, 0, 'cancel')
             .setInteractive().on('pointerdown', () => {
                 this.toggleMenu();
             });
+        cancel.play('close');
         cancel.setSize(96, 96)
         cancel.setDisplaySize(96, 96);
         cancel.x = cancel.width - (2 * UIConfig.borderPadding) - hWidth;
@@ -246,7 +255,7 @@ export class MenuScene extends Phaser.Scene {
         cancel.on('pointerover', () => {
             this.tweens.add({
                 targets: cancel,
-                angle: 15,  // Tilt 15 degrees
+                scale: this.menuCogInitScale * 1.1,  // Tilt 15 degrees
                 duration: 200,
                 ease: 'Power2'
             });
@@ -255,7 +264,7 @@ export class MenuScene extends Phaser.Scene {
         cancel.on('pointerout', () => {
             this.tweens.add({
                 targets: cancel,
-                angle: 0,  // Reset to default
+                scale: this.menuCogInitScale,  // Reset to default
                 duration: 200,
                 ease: 'Power2'
             });
