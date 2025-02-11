@@ -16,7 +16,8 @@ export class PlayScene extends Phaser.Scene {
     // To make the ship smoothly come to a stop at top of the world, and not
     // intrude upon UI.
     private mouseCap : number;
-    private initGravity : number;
+    private initGravity  : number;
+    private minGravityMultiplier : number = 0.5;
     private atmosphereHeight : number;
     private worldHeight : number = 5000;
 
@@ -85,11 +86,10 @@ export class PlayScene extends Phaser.Scene {
             return this.initGravity;
         } else {
             // extreme levels of swag
-            return this.initGravity * ((this.worldHeight - this.atmosphereHeight)/(height - this.worldHeight + this.atmosphereHeight - 50));
+            let k = ((1/(2 * Math.pow((this.worldHeight - this.atmosphereHeight), 2))));
+            return this.initGravity * k * Math.pow((this.worldHeight - height), 2) + this.minGravityMultiplier;
             // this equation evaluates 1 when height = this.atmosphereHeight.
             // When height = 5000, multiplier is ~0.5.
-            // 50 is a magic number, idk how to find it
         }
-
     }
 }
