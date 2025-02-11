@@ -64,10 +64,10 @@ export class PlayScene extends Phaser.Scene {
         this.initGravity = this.physics.world.gravity.y;
         this.atmosphereHeight = this.worldHeight * 0.67;
 
-        this.hasPlayed = (gVar.highScore > 0);
+        this.hasPlayed = (gVar.highScore != 0);
 
-        this.bgTop    = this.add.tileSprite(0,     0, 0, 0, 'bgBottom').setOrigin(0, 1);
-        this.bgBottom = this.add.tileSprite(0, -2500, 0, 0, 'bgTop').setOrigin(0, 1);
+        this.bgTop     = this.add.tileSprite(0,     0, 0, 0, 'bgBottom').setOrigin(0, 1);
+        this.bgBottom  = this.add.tileSprite(0, -2500, 0, 0, 'bgTop').setOrigin(0, 1);
 
         this.mountains = this.add.tileSprite(0, 0, 0, 0, 'mountain').setOrigin(0, 1);
         this.treesB    = this.add.tileSprite(0, 0, 0, 0, 'treesB').setOrigin(0, 1);
