@@ -55,7 +55,7 @@ const config: webpack.Configuration = {
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html'),
-      title: 'Endless Runner',
+      title: 'Fly-By',
       inject: 'head'
     })
   ]

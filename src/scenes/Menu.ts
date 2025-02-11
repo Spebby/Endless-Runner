@@ -65,6 +65,10 @@ export class MenuScene extends Phaser.Scene {
         SoundMan.add('uiBlip', 'sfx/uiBlip.wav');
         SoundMan.add('select', 'sfx/select.wav');
         SoundMan.add('shot', 'sfx/shot.wav');
+        SoundMan.add('coin', 'sfx/coin.wav');
+        SoundMan.add('pop',  'sfx/pop.wav');
+        SoundMan.add('fall', 'sfx/fall.wav');
+        SoundMan.add('gameOver', 'sfx/gameOver.wav');
         SoundMan.importJSON('soundData.json');
     }
 
@@ -97,14 +101,14 @@ export class MenuScene extends Phaser.Scene {
         });
         this.anims.create({
             key: 'b-idle',
-            frameRate: 4,
+            frameRate: 8,
             repeat: -1,
             yoyo: true,
             frames: this.anims.generateFrameNumbers('bird', { start: 0, end: 5 }),
         });
         this.anims.create({
             key: 'coin',
-            frameRate: 4,
+            frameRate: 8,
             repeat: -1,
             yoyo: true,
             frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 6 }),
@@ -207,9 +211,9 @@ export class MenuScene extends Phaser.Scene {
 
 
         // add help/settings menu
-        this.overlay  = this.add.container(hWidth, hHeight);
+        this.overlay  = this.add.container(hWidth, hHeight)
+            .setScale(0);
         let overlayBg = this.add.rectangle(0, 0, hWidth * 2, hHeight * 2, 0x282c34, 0.5)
-        //    .setScale(1)
             .setOrigin(0.5)
             .setInteractive();
 
