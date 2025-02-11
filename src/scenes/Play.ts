@@ -82,7 +82,7 @@ export class PlayScene extends Phaser.Scene {
         this.player.anims.play('p-idle');
 
         this.cameras.main.setBounds(0, -this.worldHeight, hWidth, this.worldHeight);
-        this.cameras.main.setZoom(1);
+        this.cameras.main.setZoom(2);
         this.cameras.main.startFollow(this.player, false, 0.1, 0.1, 32 - hWidth, 0);
 
         let t = this.physics.world.bounds;
