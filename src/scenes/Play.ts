@@ -16,9 +16,9 @@ let hWidth  : number;
 export class PlayScene extends Phaser.Scene {
     private player : Player;
 
-
-    private score  : number  = 0;
-    private paused : boolean = false;
+    private score   : number  = 0;
+    private paused  : boolean = false;
+    private endGame : boolean = false;
 
     // To make the ship smoothly come to a stop at top of the world, and not
     // intrude upon UI.
@@ -37,9 +37,6 @@ export class PlayScene extends Phaser.Scene {
     private entityGroup : Phaser.Physics.Arcade.Group;
 
     // background elements
-    private bgTop     : GameObjects.TileSprite;
-    private bgBottom  : GameObjects.TileSprite;
-
     private mountains : GameObjects.TileSprite;
     private treesF    : GameObjects.TileSprite;
     private treesM    : GameObjects.TileSprite;
@@ -66,13 +63,13 @@ export class PlayScene extends Phaser.Scene {
 
         this.hasPlayed = (gVar.highScore != 0);
 
-        this.bgTop     = this.add.tileSprite(0,     0, 0, 0, 'bgBottom').setOrigin(0, 1);
-        this.bgBottom  = this.add.tileSprite(0, -2500, 0, 0, 'bgTop').setOrigin(0, 1);
+        this.add.image(0,     0, 'bgBottom').setOrigin(0, 1);
+        this.add.image(0, -2500, 'bgTop').setOrigin(0, 1);
 
-        this.mountains = this.add.tileSprite(0, 0, 0, 0, 'mountain').setOrigin(0, 1);
-        this.treesB    = this.add.tileSprite(0, 0, 0, 0, 'treesB').setOrigin(0, 1);
-        this.treesM    = this.add.tileSprite(0, 0, 0, 0, 'treesM').setOrigin(0, 1);
-        this.treesF    = this.add.tileSprite(0, 0, 0, 0, 'treesF').setOrigin(0, 1);
+        this.mountains = this.add.tileSprite(0, 20, 0, 0, 'mountain').setOrigin(0, 1);
+        this.treesB    = this.add.tileSprite(0, 20, 0, 0, 'treesB').setOrigin(0, 1);
+        this.treesM    = this.add.tileSprite(0, 20, 0, 0, 'treesM').setOrigin(0, 1);
+        this.treesF    = this.add.tileSprite(0, 20, 0, 0, 'treesF').setOrigin(0, 1);
 
         // phaser being Y up is really awful to work with, so I'm swapping it.
         this.physics.world.setBounds(0, -this.worldHeight, hWidth, this.worldHeight);
@@ -80,6 +77,7 @@ export class PlayScene extends Phaser.Scene {
         this.player = new Player(this, 32 + UIConfig.borderPadding, -500, 'player');
         this.player.setImmovable(true);
         this.player.anims.play('p-idle');
+        this.treesF.setDepth(this.player.depth + 1);
 
         this.cameras.main.setBounds(0, -this.worldHeight, hWidth, this.worldHeight);
         this.cameras.main.setZoom(2);
@@ -162,10 +160,11 @@ export class PlayScene extends Phaser.Scene {
                     entity = new Entity(this, hWidth * 2 + pMath.Between(0, 100), pos, 'balloon', 10, this.player.hitBalloon.bind(this.player), pMath.Between(0, 4));
                     entity.play('balloon');
                 } else if (type < 0.2) { // coin
-                    entity = new Entity(this, hWidth * 2 + pMath.Between(0, 100), pos, 'coin', 0, this.pickupCoin.bind(this), pMath.Between(0, 6));
+                    entity = new Entity(this, hWidth * 2 + pMath.Between(0,  50), pos, 'coin', 0, this.pickupCoin.bind(this), pMath.Between(0, 6));
                     entity.play('coin');
                 } else {
-                    entity = new Entity(this, hWidth * 2 + pMath.Between(0, 200), pos, 'bird', pMath.Between(75, 150), this.gameOver.bind(this), pMath.Between(0, 5));
+                    entity = new Entity(this, hWidth * 2 + pMath.Between(0, 300), pos, 'bird', pMath.Between(75, 150), this.gameOver.bind(this), pMath.Between(0, 5));
+                    entity.setCircle(96);
                     entity.play('b-idle');
                 }
 
@@ -203,13 +202,10 @@ export class PlayScene extends Phaser.Scene {
     }
 
     scrollBackground(deltaX : number) : void {
-        this.bgTop.tilePositionX     -= 0.01 * deltaX;
-        this.bgBottom.tilePositionX  -= 0.01 * deltaX;
-
-        this.mountains.tilePositionX -= 0.1  * deltaX;
-        this.treesB.tilePositionX    -= 0.25 * deltaX;
-        this.treesM.tilePositionX    -= 0.6  * deltaX;
-        this.treesF.tilePositionX    -= 1    * deltaX;
+        this.mountains.tilePositionX += 0.1  * deltaX;
+        this.treesB.tilePositionX    += 0.25 * deltaX;
+        this.treesM.tilePositionX    += 0.6  * deltaX;
+        this.treesF.tilePositionX    += 1    * deltaX;
     }
 
     calculateScore(delta : number) : void {
@@ -268,6 +264,10 @@ export class PlayScene extends Phaser.Scene {
     }
 
     togglePause() : void {
+        // don't allow unpause on gameover.
+        if (this.endGame) {
+            return;
+        }
         SoundMan.play('select');
         if (this.paused) {
             this.physics.world.resume();
@@ -283,13 +283,15 @@ export class PlayScene extends Phaser.Scene {
             gVar.highScore = Math.floor(this.score);
             saveCookie('highScore', Math.floor(this.score));
         }
-        this.paused = true;
+        this.endGame = true;
+        this.paused  = true;
         this.UIScene.setGameOver();
         this.physics.pause();
     }
 
     reset() : void {
-        this.paused = false;
+        this.endGame = false;
+        this.paused  = false;
         if (this.score > gVar.highScore) {
             gVar.highScore = Math.floor(this.score);
             saveCookie('highScore', Math.floor(this.score));

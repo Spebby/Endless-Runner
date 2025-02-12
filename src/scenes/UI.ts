@@ -135,7 +135,7 @@ export class UIScene extends Phaser.Scene {
         if (gVar.highScore <= this.PlayScene.getScore()) {
             scoreText.text = `New Highscore: ${Math.floor(gVar.highScore)}!`;
         } else {
-            scoreText.text = `Final Score: ${Math.floor(gVar.highScore)}`;
+            scoreText.text = `Final Score: ${Math.floor(this.PlayScene.getScore())}`;
         }
 
         this.gameOver.add(scoreText);

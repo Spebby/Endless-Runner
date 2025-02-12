@@ -1,6 +1,5 @@
 import { GameObjects, Physics } from 'phaser';
 import { Math as pMath } from 'phaser';
-import {KeyMap} from '../keymap';
 import {SoundMan} from '../soundman';
 //import {gVar} from '../global';
 
@@ -19,19 +18,17 @@ export class Player extends Physics.Arcade.Sprite {
     constructor(scene : Phaser.Scene, x : number, y : number, texture : string) {
         super(scene, x, y, texture, 0);
         this.initX = x;
-
-
         this.setScale(0.125);
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        this.body.setCircle(128);
+        this.body.setCircle(96);
         this.setOffset(128, 128);
         this.setMass(1);
         this.setMaxVelocity(this.terminalVelocity);
         this.setVelocityX(100);
         this.setDrag(0.9);
-        this.setGravity(0, 5);
+        this.setGravity(0, 10);
     }
 
     /** 
@@ -40,12 +37,6 @@ export class Player extends Physics.Arcade.Sprite {
     * @ref https://docs.phaser.io/api-documentation/event/scenes-events#update
     */
     update(time : number, delta : number) : void {
-        // Consider if I want any keyboard input
-        /*if (KeyMap.keyLEFT.isDown || KeyMap.keyUP.isDown) {
-            this.rotation -= 0.05;
-        } else if (KeyMap.keyRIGHT.isDown || KeyMap.keyDOWN.isDown) {
-            this.rotation += 0.05;
-        }*/
         this.mouseLockTimer -= delta;
 
         var pos : pMath.Vector2 = new pMath.Vector2(this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY).subtract(this.body.position);
@@ -66,17 +57,6 @@ export class Player extends Physics.Arcade.Sprite {
         }
         // Lock player's horizontal movement (but maintains velocity)
         this.x = this.initX;
-
-        /* temp wrap around for testing
-        if(1000 < this.x) {
-            this.x = 1;
-        } else if (this.x < 0) {
-            this.x = 999;
-        }
-        if (-20 < this.y) {
-            this.y = -400;
-        }
-        */
     }
 
     private glide(delta : number, pitch : number, dir : pMath.Vector2) : void {
@@ -86,16 +66,18 @@ export class Player extends Physics.Arcade.Sprite {
         // looking down all the way would be all of gravity taking you down and based on the angle you
         // slowly add to gravity untileit's positive
 
-        // NOTE: remember that Phaser inverts Y axis
-        // Which means pitch is inverted too!
-        
-        let speed = vel.length();
-        let dot   = vel.dot(dir) / speed;
+        /*
+         * NOTE: remember that Phaser inverts Y axis
+         * Which means pitch is inverted too!
+         */
+        let speed     = vel.length();
+        let dot       = vel.dot(dir) / speed;
+        let horiRatio = vel.x / speed;
 
         // NOTE: We'd normally negate this, but Phaser makes
         // Y-up positive. So it's already correct.
         let clampedPitch = (2 * pitch)/PI;
-        let speedUp = 0 < pitch ? 2 * clampedPitch : 0;
+        let speedUp = 0 < pitch ? 2 * clampedPitch : clampedPitch * 0.1;
         // I want actual speedup while looking down, and no speedup while looking up,
         // so gravity & drag can take over.
 
@@ -107,7 +89,15 @@ export class Player extends Physics.Arcade.Sprite {
         //console.log(clampedPitch, speedUp, vel, targetVel, deltaVel);
         this.body.velocity.x += deltaVel.x;
         this.body.velocity.y += deltaVel.y + (this.body.gravity.y * delta);
-        //console.log(`SpeedUp: ${Math.round(speedUp * 1000)/1000}  dot: ${Math.round(dot*1000)/1000}   speed ${Math.round(mag*1000)/1000}   targetVel: <${Math.round(nDir.x*1000)/1000}, ${Math.round(nDir.y*1000)/1000}>`);
+
+        if (speed <= 50) {
+            let gFactor = -Math.pow(horiRatio * 0.25, 2) + (10/(speed - 2));
+            console.log(horiRatio, gFactor, this.body.gravity.y);
+            this.body.velocity.y += (this.body.gravity.y * gFactor) * delta;
+            if (this.body.velocity.y <  10) {
+                this.body.velocity.y += 30 * delta;
+            }
+        }
     }
 
     // this is more accurate but harder to work with.
