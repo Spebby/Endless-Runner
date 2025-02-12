@@ -3,12 +3,11 @@ import { Math as pMath } from "phaser";
 import { GameConfig, UIConfig } from "../config";
 import { KeyMap } from "../keymap";
 import { SoundMan } from "../soundman";
-import { gVar, gConst, saveCookie } from "../global";
+import { gVar, saveCookie } from "../global";
 
 import { Player  } from "../objects/player";
 import { Entity  } from "../objects/entity";
 import { UIScene } from "./UI";
-import { win32 } from "path";
 
 let hHeight : number;
 let hWidth  : number;

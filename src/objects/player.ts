@@ -1,9 +1,8 @@
-import { GameObjects, Physics } from 'phaser';
+import { Physics } from 'phaser';
 import { Math as pMath } from 'phaser';
-import {SoundMan} from '../soundman';
-//import {gVar} from '../global';
+import { SoundMan } from '../soundman';
 
-const { sin, cos, tan, asin, acos, atan, PI } = Math;
+const { asin, PI } = Math;
 
 export class Player extends Physics.Arcade.Sprite {
     // body is reserved by Sprite
