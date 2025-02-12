@@ -141,7 +141,7 @@ export class MenuScene extends Phaser.Scene {
         // Read Cookies
         for (const cookie of document.cookie.split("; ")) {
             const [key, value] = cookie.split("=");
-            if (key === "highscore") {
+            if (key === "highScore") {
                 gVar.highScore = parseInt(decodeURIComponent(value));
             }
             if (key === "musicOn") {
@@ -175,8 +175,9 @@ export class MenuScene extends Phaser.Scene {
 
         // display menu text
         // menuConfig.backgroundColor = '#00FF00';
-        if (0 < gVar.highScore) {
-            this.hsText = this.add.text(hWidth, hHeight + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `High Score: ${gVar.highScore}`, gConst.titleConfig).setOrigin(0.5).setFontSize('32px');
+        this.hsText = this.add.text(hWidth, hHeight + 4 * (UIConfig.borderUISize + UIConfig.borderPadding), `High Score: ${gVar.highScore}`, gConst.titleConfig).setOrigin(0.5).setFontSize('32px');
+        if (gVar.highScore == 0) {
+            this.hsText.text = '';
         }
 
 
@@ -314,7 +315,7 @@ export class MenuScene extends Phaser.Scene {
 
     resetHighscore() : void {
         SoundMan.playUnweight('explosions');
-        document.cookie = `highscore=0; expires=Fri, 1, Jan 1, 23:59:59 GMT; path=/`;
+        document.cookie = `highScore=0; expires=Fri, 1, Jan 1, 23:59:59 GMT; path=/`;
         gVar.highScore  = 0;
         this.hsText.text = ``;
     }
