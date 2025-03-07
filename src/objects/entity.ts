@@ -1,8 +1,5 @@
 import { GameObjects, Physics } from 'phaser';
 import { Math as pMath } from 'phaser';
-//import { SoundMan } from '../soundman';
-
-//const { sin, cos, tan, asin, acos, atan, PI } = Math;
 
 export class Entity extends Physics.Arcade.Sprite {
     private baseSpeed  : number;
